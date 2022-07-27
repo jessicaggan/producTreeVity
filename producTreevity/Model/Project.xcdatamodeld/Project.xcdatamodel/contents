@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Project" representedClassName="Project" syncable="YES">
+        <attribute name="projectCreatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="projectImage" optional="YES" attributeType="String"/>
+        <attribute name="projectName" optional="YES" attributeType="String"/>
+        <relationship name="tasks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Task" inverseName="project" inverseEntity="Task"/>
+    </entity>
+    <entity name="Task" representedClassName="Task" syncable="YES">
+        <attribute name="taskName" optional="YES" attributeType="String"/>
+        <attribute name="taskProgress" optional="YES" attributeType="String"/>
+        <attribute name="taskUpdateDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="project" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="tasks" inverseEntity="Project"/>
+    </entity>
+    <elements>
+        <element name="Task" positionX="-63" positionY="-18" width="128" height="89"/>
+        <element name="Project" positionX="-54" positionY="-9" width="128" height="89"/>
+    </elements>
+</model>
