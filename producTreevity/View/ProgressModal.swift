@@ -8,17 +8,21 @@
 import SwiftUI
 
 struct ProgressModal: View {
+    @StateObject var vm = CoreDataViewModel()
+    @Binding var isShowing:Bool
     @State private var progressSelection = "Not Started"
+    @Binding var project:ProjectEntity
+    @Binding var task:TaskEntity
+    @Binding var progressBefore:String
     let availableSelection = ["Not Started", "In Progress", "Finished"]
     var body: some View {
         ZStack(alignment: .center){
-//            if(isShowing){
+            if(isShowing){
                 Color.black
                     .opacity(0.8)
                     .ignoresSafeArea()
                     .onTapGesture {
-//                        isShowing = false
-                        
+                        isShowing = false
                     }
             VStack(alignment: .center){
                 ZStack{
@@ -53,6 +57,10 @@ struct ProgressModal: View {
 
                         Button {
                             print("Update")
+                            isShowing = false
+                            print(isShowing)
+                            vm.updateProgress(project: project , task: task, progress: progressSelection, progressBefore: progressBefore)
+
                         } label: {
                             Text("Update")
                                 .foregroundColor(.white)
@@ -81,11 +89,13 @@ struct ProgressModal: View {
                     .foregroundColor(Color(red: 0.73, green: 0.81, blue: 0.64))
             )
         }
+        }
     }
 }
 
 struct ProgressModal_Previews: PreviewProvider {
     static var previews: some View {
-        ProgressModal()
+//        ContentView(projectEntity: CoreDataViewModel().projects[CoreDataViewModel().projects.count-1])
+        ContentView(idx: 0)
     }
 }

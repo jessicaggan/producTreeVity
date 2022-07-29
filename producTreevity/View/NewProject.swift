@@ -13,6 +13,11 @@ struct Tasks: Identifiable {
 }
 
 struct NewProject: View {
+    
+    @StateObject var vm = CoreDataViewModel()
+    @State private var showingAlert = false
+    @State private var showingAlertEmpty = false
+    @State private var willMoveToDashboard = false
     @Environment(\.dismiss) var dismiss
     @State var editMode: EditMode = .active
     @State private var newTask = ""
@@ -105,6 +110,21 @@ struct NewProject: View {
                     Text("Number of task(s): \(listTasks.count)")
                     Button {
                         print(listTasks)
+                        guard !treeNameValue.isEmpty && !selectedTreeName.isEmpty && !listTasks.isEmpty else{
+                            showingAlertEmpty = true
+                            return
+                        }
+//                        vm.addProject(projectSelectedName: treeNameValue, projectSelectedImageType: selectedTreeName)
+                        
+                        
+                        let project = vm.createProject(name: treeNameValue, imageNameType: selectedTreeName)
+                        for task in listTasks{
+                            vm.createTask(taskName: task, taskProgress: "Not Started",projectEntity: project)
+                            print(task)
+                        }
+                        treeNameValue = ""
+                        selectedTreeName = ""
+                        showingAlert = true
                     } label: {
                         Text("Create")
                             .fontWeight(.semibold)
@@ -113,8 +133,18 @@ struct NewProject: View {
                             .cornerRadius(10)
                             .foregroundColor(Color(red: 0.36, green: 0.10, blue: 0.00))
                     }
-                    
-                    
+                    .alert("New Project Tree Successfully Created", isPresented: $showingAlert) {
+                                Button("Okay") {
+                                    willMoveToDashboard = true
+                                }
+
+                            }
+                    .alert("You Must Fill All the Information Needed", isPresented: $showingAlertEmpty) {
+                                Button("Okay") {
+                                    
+                                }
+
+                            }
                 }
                 .padding(.all, 16.0)
                 .navigationBarTitle("New Project Tree")
@@ -137,10 +167,11 @@ struct NewProject: View {
             
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        
+        .navigate(to: ContentView(idx: 0), when: $willMoveToDashboard)
         
         
     }
+        
     
     func delete(at offsets: IndexSet){
         listTasks.remove(atOffsets: offsets)

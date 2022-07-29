@@ -12,6 +12,7 @@ struct producTreevityApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+//            ContentView(idx: CoreDataViewModel().projects.count-1)
         }
     }
 }

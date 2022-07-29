@@ -8,13 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var vm = CoreDataViewModel()
+    
     @State private var willMoveToTreeCollection = false
     @State private var willMoveToTimeline = false
     @State private var willMovetoNewProject = false
+    @State var taskName = ""
+    @State var taskProgress = 0
     
-    @State var img = "pink-tree"
+    @State var progressSelection:String = "Not Started"
+    @State var project:ProjectEntity = CoreDataViewModel().projects[0]
+    @State var task:TaskEntity = CoreDataViewModel().projects[0].task[0]
+    @State private var showModal = false
+    @State var idx:Int = 0
     
     var body: some View {
+        
         ZStack{
             Color(red: 0.98, green: 0.99, blue: 0.84).ignoresSafeArea()
             VStack{
@@ -53,30 +62,73 @@ struct ContentView: View {
                         .overlay(Circle()
                             .stroke(Color(red: 0.10, green: 0.33, blue: 0.16)))
                     }
+                }
+                if(vm.projects.count>0)
+                {
+                    
+                    Text(vm.projects[idx].projectName ?? "")
+                        .font(.system(size: 24))
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(red: 0.37, green: 0.42, blue: 0.30))
+                        .padding(.top, 32.0)
+                    
+
+                    Text("\(vm.projects[idx].finishedTask)/\(vm.projects[idx].task.count) Task Finished")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color(red: 0.82, green: 0.55, blue: 0.35))
+                    TreeView
+
+                    if(vm.projects.count>0){
+                        TaskView
+                            .padding(.top,16)
+                    }
                     
                     
                 }
-                
-                Text("Learn Core Data")
-                    .font(.system(size: 24))
-                    .fontWeight(.bold)
-                    .foregroundColor(Color(red: 0.37, green: 0.42, blue: 0.30))
-                    .padding(.top, 32.0)
-                
-                Text("1/6 Task Finished")
-                    .font(.system(size: 16))
-                    .foregroundColor(Color(red: 0.82, green: 0.55, blue: 0.35))
-                TreeView
-                TaskView
-                
+                else{
+                    Text("No Project")
+                        .font(.system(size: 24))
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(red: 0.37, green: 0.42, blue: 0.30))
+                        .padding(.top, 32.0)
+                    
+                    noTreeView
+                    
+                    Button {
+                        willMovetoNewProject = true
+                    } label: {
+                        VStack {
+                            ZStack{
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 80, height: 80, alignment: .trailing)
+                                VStack(spacing: 0.0){
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 48))
+                                    
+                                }
+                                .foregroundColor(.black)
+                            }
+                            .overlay(Circle()
+                                .stroke(Color(red: 0.10, green: 0.33, blue: 0.16)))
+                            
+                            Text("New Tree")
+                                .font(.system(size: 16))
+                                .foregroundColor(Color(red: 0.37, green: 0.42, blue: 0.30))
+                        }
+                    }
+                }
                 Spacer()
             }
             .padding(.all, 16.00)
+            ProgressModal(isShowing: $showModal, project: $project, task: $task, progressBefore: $progressSelection)
         }
         .navigate(to: TreeCollection(), when: $willMoveToTreeCollection)
         .navigate(to: Timeline(), when: $willMoveToTimeline)
         .navigate(to: NewProject(), when: $willMovetoNewProject)
+        
     }
+    
     
     var noTreeView:some View{
         Image("dirt").resizable()
@@ -88,111 +140,41 @@ struct ContentView: View {
         ZStack{
             HStack{
                 Button {
-                    img = "dirt"
+                    if idx-1 < 0{
+                        idx = vm.projects.count-1
+                    }
+                    else{
+                        idx = idx - 1
+                    }
+                                        print(vm.tasks)
                 } label: {
                     Image(systemName: "chevron.left.circle")
                         .resizable()
                         .frame(width: 20, height: 20)
                 }
                 .foregroundColor(.brown)
-                
-                Image(img).resizable()
+                Image(vm.projects[idx].projectImageType ?? "").resizable()
                     .frame(width: 238, height: 260, alignment: .center)
                 
+                
+                
                 Button {
-                    img = "pink-tree"
+                    if idx+1 == vm.projects.count{
+                        idx = 0
+                    }
+                    else{
+                        idx = idx + 1
+                    }
+                    //                    projectEntity = vm.projects[idx]
                 } label: {
                     Image(systemName: "chevron.right.circle")
                         .resizable()
                         .frame(width: 20, height: 20)
                 }
                 .foregroundColor(.brown)
+                
             }
         }
-    }
-    var TaskView:some View{
-        List {
-            FinishedView
-                .listRowSeparator(.hidden)
-            InProgressView
-                .listRowSeparator(.hidden)
-            NotStartedView
-                .listRowSeparator(.hidden)
-            FinishedView
-                .listRowSeparator(.hidden)
-        }
-        .listRowSeparator(.hidden)
-        .frame(height: 350.0)
-        .onAppear {
-            UITableView.appearance().backgroundColor = .clear
-        }
-        
-    }
-    
-    var FinishedView: some View{
-        ZStack{
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
-            HStack{
-                Image("water")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                Text("Core Data Stack")
-                    .lineLimit(nil)
-                    .padding(.vertical, 3.0)
-                Spacer()
-                Text("Finished")
-                    .foregroundColor(Color(red: 0.17, green: 0.51, blue: 0.02))
-            }
-            .padding(.trailing, 8.0)
-        }
-        .overlay(RoundedRectangle(cornerRadius: 15)
-            .stroke(Color(red: 0.17, green: 0.51, blue: 0.02)))
-        .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
-    }
-    
-    var InProgressView:some View{
-        ZStack{
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
-            HStack{
-                Image("water")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                Text("Core Data Model")
-                    .lineLimit(nil)
-                    .padding(.vertical, 3.0)
-                Spacer()
-                Text("In Progress")
-                    .foregroundColor(Color(red: 0.52, green: 0.43, blue: 0.06))
-            }
-            .padding(.trailing, 8.0)
-        }
-        .overlay(RoundedRectangle(cornerRadius: 15)
-            .stroke(Color(red: 0.52, green: 0.43, blue: 0.06)))
-        .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
-    }
-    
-    var NotStartedView: some View{
-        ZStack{
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
-            HStack(spacing: 8.0){
-                Image("water")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                Text("Fetch Request")
-                    .lineLimit(nil)
-                    .padding(.vertical, 3.0)
-                Spacer()
-                Text("Not Started")
-                    .foregroundColor(Color(red: 0.78, green: 0.04, blue: 0.04))
-            }
-            .padding(.trailing, 8.0)
-        }
-        .overlay(RoundedRectangle(cornerRadius: 15)
-            .stroke(Color(red: 0.78, green: 0.04, blue: 0.04)))
-        .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
     }
     
     var TreeCount:some View{
@@ -204,7 +186,7 @@ struct ContentView: View {
                 Image("tree-count")
                     .resizable()
                     .frame(width: 22, height: 22, alignment: .leading)
-                Text("6")
+                Text("\(vm.projects.count)")
                 
             }
             .foregroundColor(.black)
@@ -212,13 +194,202 @@ struct ContentView: View {
         .overlay(RoundedRectangle(cornerRadius: 15)
             .stroke(Color(red: 0.10, green: 0.33, blue: 0.16)))
     }
+    
+    var FinishedView: some View{
+        Button {
+            showModal = true
+        } label: {
+            ZStack{
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
+                HStack{
+                    Image("water")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                    Text("Core Data Stack")
+                        .lineLimit(nil)
+                        .padding(.vertical, 3.0)
+                        .foregroundColor(.black)
+                    Spacer()
+                    Text("Finished")
+                        .foregroundColor(Color(red: 0.17, green: 0.51, blue: 0.02))
+                }
+                .padding(.trailing, 8.0)
+            }
+            .overlay(RoundedRectangle(cornerRadius: 15)
+                .stroke(Color(red: 0.17, green: 0.51, blue: 0.02)))
+            .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
+        }
+        
+        
+    }
+    
+    var InProgressView:some View{
+        Button {
+            showModal = true
+        } label: {
+            ZStack{
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
+                HStack{
+                    Image("water")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                    Text("Core Data Model")
+                        .lineLimit(nil)
+                        .padding(.vertical, 3.0)
+                        .foregroundColor(.black)
+                    Spacer()
+                    Text("In Progress")
+                        .foregroundColor(Color(red: 0.52, green: 0.43, blue: 0.06))
+                }
+                .padding(.trailing, 8.0)
+            }
+            .overlay(RoundedRectangle(cornerRadius: 15)
+                .stroke(Color(red: 0.52, green: 0.43, blue: 0.06)))
+            .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
+        }
+    }
+    
+    var NotStartedView: some View{
+        Button {
+            showModal = true
+        } label: {
+            ZStack{
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
+                HStack(spacing: 8.0){
+                    Image("water")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                    Text("Fetch Request")
+                        .lineLimit(nil)
+                        .padding(.vertical, 3.0)
+                        .foregroundColor(.black)
+                    Spacer()
+                    Text("Not Started")
+                        .foregroundColor(Color(red: 0.78, green: 0.04, blue: 0.04))
+                }
+                .padding(.trailing, 8.0)
+            }
+            .overlay(RoundedRectangle(cornerRadius: 15)
+                .stroke(Color(red: 0.78, green: 0.04, blue: 0.04)))
+            .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
+        }
+        
+        
+    }
+    
+    var TaskView: some View{
+        ZStack {
+            ScrollView {
+                ForEach(0..<vm.projects[idx].task.count, id: \.self){ index in
+                    if(vm.projects[idx].task[index].taskProgress == "Finished"){
+                        Button {
+                            showModal = true
+                            progressSelection = "Finished"
+                            project = vm.projects[idx]
+                            task = vm.projects[idx].task[index]
+                            
+                        } label: {
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 16)
+                                    .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
+                                HStack{
+                                    Image("water")
+                                        .resizable()
+                                        .frame(width: 30, height: 30)
+                                    Text(vm.projects[idx].task[index].taskName ?? "")
+                                        .lineLimit(nil)
+                                        .padding(.vertical, 3.0)
+                                        .foregroundColor(.black)
+                                    Spacer()
+                                    Text("Finished")
+                                        .foregroundColor(Color(red: 0.17, green: 0.51, blue: 0.02))
+                                }
+                                .padding(.trailing, 8.0)
+                            }
+                            .overlay(RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color(red: 0.17, green: 0.51, blue: 0.02)))
+                            .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
+                        }
+                    }
+                    else if(vm.projects[idx].task[index].taskProgress == "In Progress"){
+                        Button {
+                            showModal = true
+                            progressSelection = "In Progress"
+                            project = vm.projects[idx]
+                            task = vm.projects[idx].task[index]
+                        } label: {
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 16)
+                                    .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
+                                HStack{
+                                    Image("water")
+                                        .resizable()
+                                        .frame(width: 30, height: 30)
+                                    Text(vm.projects[idx].task[index].taskName ?? "")
+                                        .lineLimit(nil)
+                                        .padding(.vertical, 3.0)
+                                        .foregroundColor(.black)
+                                    Spacer()
+                                    Text("In Progress")
+                                        .foregroundColor(Color(red: 0.52, green: 0.43, blue: 0.06))
+                                }
+                                .padding(.trailing, 8.0)
+                            }
+                            .overlay(RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color(red: 0.52, green: 0.43, blue: 0.06)))
+                            .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
+                        }
+                    }
+                    else{
+                        Button {
+                            showModal = true
+                            progressSelection = "Not Started"
+                            project = vm.projects[idx]
+                            task = vm.projects[idx].task[index]
+                        } label: {
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 16)
+                                    .foregroundColor(Color(red: 0.90, green: 0.73, blue: 0.58))
+                                HStack(spacing: 8.0){
+                                    Image("water")
+                                        .resizable()
+                                        .frame(width: 30, height: 30)
+                                    Text(vm.projects[idx].task[index].taskName ?? "")
+                                        .lineLimit(nil)
+                                        .padding(.vertical, 3.0)
+                                        .foregroundColor(.black)
+                                    Spacer()
+                                    Text("Not Started")
+                                        .foregroundColor(Color(red: 0.78, green: 0.04, blue: 0.04))
+                                }
+                                .padding(.trailing, 8.0)
+                            }
+                            .overlay(RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color(red: 0.78, green: 0.04, blue: 0.04)))
+                            .listRowBackground(Color(red: 0.98, green: 0.99, blue: 0.84))
+                        }
+                    }
+                    
+
+                }
+
+            }
+            .frame(width: 300 )
+            
+        }
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
+    @State var progressSelected:String = "Not Started"
     static var previews: some View {
         Group {
             ContentView()
-            //            MainView()
+//            ContentView(progressSelection: $progressSelected, idx: 0)
+//            ContentView(idx: 0, progressSelection = "Not Started")
         }
     }
 }
@@ -239,7 +410,6 @@ struct MainView: View{
         
     }
 }
-
 
 struct View1: View{
     

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ProjectEntity" representedClassName="ProjectEntity" syncable="YES">
+        <attribute name="finishedTask" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="projectCreatedDate" optional="YES" attributeType="String"/>
+        <attribute name="projectImageType" optional="YES" attributeType="String"/>
+        <attribute name="projectName" optional="YES" attributeType="String"/>
+        <relationship name="tasks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="projects" inverseEntity="TaskEntity"/>
+    </entity>
+    <entity name="TaskEntity" representedClassName="TaskEntity" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="taskName" optional="YES" attributeType="String"/>
+        <attribute name="taskProgress" optional="YES" attributeType="String"/>
+        <attribute name="taskUpdateDate" optional="YES" attributeType="String"/>
+        <relationship name="projects" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ProjectEntity" inverseName="tasks" inverseEntity="ProjectEntity"/>
+    </entity>
+    <elements>
+        <element name="ProjectEntity" positionX="-63" positionY="-18" width="128" height="119"/>
+        <element name="TaskEntity" positionX="-63" positionY="-9" width="128" height="104"/>
+    </elements>
+</model>
