@@ -80,6 +80,7 @@ struct ContentView: View {
 
                     if(vm.projects.count>0){
                         TaskView
+                            .onAppear(perform: {vm.getTasks()})
                             .padding(.top,16)
                     }
                     

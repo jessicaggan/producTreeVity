@@ -85,15 +85,11 @@ struct NewProject: View {
                             
                             Section{
                                 ForEach(listTasks, id: \.self){ task in
-                                    //                                    Text(task)
                                     Text(task)
                                 }
                                 .onDelete(perform: delete)
                             }
                             
-                            //                                Text("Core Data Stack")
-                            //                                Text("Core Data Model")
-                            //                                Text("Fetch Request")
                         }
                         .listStyle(.plain)
                         .onSubmit(addNewTask)
@@ -114,14 +110,12 @@ struct NewProject: View {
                             showingAlertEmpty = true
                             return
                         }
-//                        vm.addProject(projectSelectedName: treeNameValue, projectSelectedImageType: selectedTreeName)
-                        
                         
                         let project = vm.createProject(name: treeNameValue, imageNameType: selectedTreeName)
                         for task in listTasks{
                             vm.createTask(taskName: task, taskProgress: "Not Started",projectEntity: project)
-                            print(task)
                         }
+                        
                         treeNameValue = ""
                         selectedTreeName = ""
                         showingAlert = true

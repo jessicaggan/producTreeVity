@@ -37,6 +37,7 @@ class CoreDataManager {
 }
 class CoreDataViewModel: ObservableObject{
     let manager = CoreDataManager.instance
+    
     @Published var projects:[ProjectEntity] = []
     @Published var tasks:[TaskEntity] = []
     
@@ -80,12 +81,6 @@ class CoreDataViewModel: ObservableObject{
         task.taskUpdateDate = dateString
         task.projects = projectEntity
         projectEntity.addToTasks(task)
-        
-//        let idx = projects.count - 1
-//        print(projects[idx].projectName)
-//        print(projects[idx-1].tasks)
-//        task.projects = projects[idx]
-//        print(projects[idx].tasks)
         save()
     }
     
@@ -96,12 +91,10 @@ class CoreDataViewModel: ObservableObject{
         } catch let error{
             print("Error Fetching. \(error)")
         }
-        
     }
     
     func getTasks(){
         let request = NSFetchRequest<TaskEntity>(entityName: "TaskEntity")
-        
         do {
             tasks =  try manager.context.fetch(request)
         } catch let error{
